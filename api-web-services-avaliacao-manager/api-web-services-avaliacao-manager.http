@@ -1,0 +1,6 @@
+@api_web_services_avaliacao_manager_HostAddress = http://localhost:5028
+
+GET {{api_web_services_avaliacao_manager_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
