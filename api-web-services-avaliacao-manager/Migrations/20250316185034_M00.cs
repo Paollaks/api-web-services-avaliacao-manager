@@ -18,7 +18,7 @@ namespace api_web_services_avaliacao_manager.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Titulo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AnoLancamento = table.Column<int>(type: "int", nullable: false),
-                    Genero = table.Column<int>(type: "int", nullable: false),
+                    Genero = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Sinopse = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NotaMedia = table.Column<double>(type: "float", nullable: true),
                     NumeroAvaliacoes = table.Column<int>(type: "int", nullable: true)

@@ -9,6 +9,6 @@
         public int UsuarioId { get; set; }
         public required Usuario Usuario { get; set; }
         public int FilmeId { get; set; }
-        public required Filme Filme { get; set; }
+       
     }
 }
