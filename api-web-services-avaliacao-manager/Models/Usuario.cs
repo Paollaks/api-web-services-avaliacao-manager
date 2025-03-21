@@ -6,7 +6,7 @@ namespace api_web_services_avaliacao_manager.Models
     using System.Collections.Generic;
 
     [Table("Usuarios")]
-    public class Usuario
+    public class Usuario : LinksHATEOS
     {
         public int Id { get; set; }
         public required string Nome { get; set; }

@@ -2,7 +2,7 @@
 {
     using System.ComponentModel.DataAnnotations.Schema;
     [Table("Comentarios")]
-    public class Comentario
+    public class Comentario : LinksHATEOS
     {
         public int Id { get; set; }
         public string? Texto { get; set; } = string.Empty; // (pode ser nulo se ainda nao houver comentarios)

@@ -3,9 +3,10 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System;
 
     [Table("Filmes")]
-    public class Filme
+    public class Filme : LinksHATEOS
     {
         public int Id { get; set; }
         [Required]
@@ -18,5 +19,7 @@
         public ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
         public ICollection<Usuario> UsuariosFavoritaram { get; set; } = new List<Usuario>();
     }
+
+       
 
 }
