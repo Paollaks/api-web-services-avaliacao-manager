@@ -1,7 +1,10 @@
 ﻿using api_web_services_avaliacao_manager.Models;
-using Microsoft.AspNetCore.Http;
+using api_web_services_avaliacao_manager.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
@@ -9,72 +12,40 @@ namespace api_web_services_avaliacao_manager.Controllers
     [ApiController]
     public class FilmesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public FilmesController(AppDbContext context) 
+        private readonly TMDBService _tmdbService;
+
+        public FilmesController(TMDBService tmdbService)
         {
-            _context = context; 
-        }
-        [HttpGet]
-        public async Task<ActionResult> GetAll()
-        {
-            var model = await _context.Filmes.ToListAsync();
-            return Ok(model);
+            _tmdbService = tmdbService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Create(Filme model)
+        [HttpGet("tmdb")]
+        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB()
         {
-            _context.Filmes.Add(model);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetById", new {id = model.Id}, model);
+            var filmesPopulares = await _tmdbService.GetFilmesPopularesAsync();
+
+            if (filmesPopulares == null || filmesPopulares.Count == 0)
+            {
+                return NotFound("Nenhum filme encontrado.");
+            }
+
+            return Ok(filmesPopulares);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(int id)
+        
+        [HttpGet("tmdb/{id}")]
+        public async Task<ActionResult<Filme>> GetFilmeById(int id)
         {
-            var model = await _context.Filmes
-            .FirstOrDefaultAsync(c => c.Id == id);
-            if (model == null) return NotFound();
+            var filme = await _tmdbService.GetFilmeByIdAsync(id);
 
-            GerarLinks(model);
-            return Ok(model);
+            if (filme == null)
+            {
+                return NotFound($"Filme com ID {id} não encontrado.");
+            }
 
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Filme model)
-        {
-            if (id != model.Id) return BadRequest();
-
-            var modeloDb = await _context.Filmes.AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
-            if (modeloDb == null) return NotFound();
-            _context.Filmes.Update(model);
-            await _context.SaveChangesAsync();
-            return NoContent();
-
-        }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var model = await _context.Filmes.FindAsync(id);
-            
-            if (model == null) return NotFound();
-            
-            _context.Filmes.Remove(model);
-            await _context.SaveChangesAsync();
-            
-            return NoContent();
-
-
+            return Ok(filme);
         }
 
-        private void GerarLinks(Filme model)
-        {
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "self", metodo: "GET"));
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "update", metodo: "PUT"));
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "delete", metodo: "DELETE"));
-        }
     }
-
 
 }
