@@ -25,6 +25,9 @@ namespace api_web_services_avaliacao_manager.Services
             }
         }
 
+       
+
+
         public async Task<List<Filme>> GetFilmesPopularesAsync()
         {
             var url = $"{BaseUrl}/movie/popular?api_key={_apiKey}&language=pt-BR";
@@ -55,6 +58,7 @@ namespace api_web_services_avaliacao_manager.Services
             }
             return filmes;
         }
+
 
         public async Task<Filme?> GetFilmeByIdAsync(int id)
         {
@@ -93,7 +97,7 @@ namespace api_web_services_avaliacao_manager.Services
         public string Title { get; set; }
         public string Overview { get; set; }
         public string ReleaseDate { get; set; }
-        public List<TMDBGenero> Genres { get; set; } // ✅ Corrigido
+        public List<TMDBGenero> Genres { get; set; } 
     }
 
     public class TMDBGenero

@@ -36,7 +36,6 @@ namespace api_web_services_avaliacao_manager.Controllers
             .FirstOrDefaultAsync(c => c.Id == id);
             if (model == null) return NotFound();
 
-            GerarLinks(model);
             return Ok(model);
 
         }
@@ -67,12 +66,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 
 
         }
-        private void GerarLinks(Usuario model)
-        {
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "self", metodo: "GET"));
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "update", metodo: "PUT"));
-            model.Links.Add(new LinkDTO(model.Id, Url.ActionLink(), rel: "delete", metodo: "DELETE"));
-        }
+    
     }
 
 

@@ -7,7 +7,7 @@
         public int Id { get; set; }
         public string? Texto { get; set; } = string.Empty; // (pode ser nulo se ainda nao houver comentarios)
         public int UsuarioId { get; set; }
-        public Usuario Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
         public int FilmeId { get; set; }
        
     }

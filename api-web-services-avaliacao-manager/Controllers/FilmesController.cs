@@ -2,8 +2,6 @@
 using api_web_services_avaliacao_manager.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace api_web_services_avaliacao_manager.Controllers
@@ -19,14 +17,26 @@ namespace api_web_services_avaliacao_manager.Controllers
             _tmdbService = tmdbService;
         }
 
+        
         [HttpGet("tmdb")]
-        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB()
+        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB([FromQuery] string? genero)
         {
             var filmesPopulares = await _tmdbService.GetFilmesPopularesAsync();
 
             if (filmesPopulares == null || filmesPopulares.Count == 0)
             {
                 return NotFound("Nenhum filme encontrado.");
+            }
+
+            
+            if (!string.IsNullOrEmpty(genero))
+            {
+                filmesPopulares = filmesPopulares.FindAll(f => f.Genero.ToLower() == genero.ToLower());
+
+                if (filmesPopulares.Count == 0)
+                {
+                    return NotFound($"Nenhum filme encontrado para o gênero: {genero}");
+                }
             }
 
             return Ok(filmesPopulares);
@@ -45,7 +55,5 @@ namespace api_web_services_avaliacao_manager.Controllers
 
             return Ok(filme);
         }
-
     }
-
 }
