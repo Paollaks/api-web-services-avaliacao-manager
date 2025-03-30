@@ -15,6 +15,7 @@
 
         public string? Genero { get; set; }  
 
-        public string? Sinopse { get; set; }  
+        public string? Sinopse { get; set; }
+        public int IdFilme { get; internal set; }
     }
 }

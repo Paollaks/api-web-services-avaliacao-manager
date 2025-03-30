@@ -25,9 +25,6 @@ namespace api_web_services_avaliacao_manager.Services
             }
         }
 
-       
-
-
         public async Task<List<Filme>> GetFilmesPopularesAsync()
         {
             var url = $"{BaseUrl}/movie/popular?api_key={_apiKey}&language=pt-BR";
@@ -59,6 +56,35 @@ namespace api_web_services_avaliacao_manager.Services
             return filmes;
         }
 
+        public async Task<List<Filme>> ObterFilmesPorGenero(int idGenero)
+        {
+            string url = $"{BaseUrl}/discover/movie?api_key={_apiKey}&language=pt-BR&with_genres={idGenero}";
+
+            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<Filme>();
+            }
+
+            string json = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(json);
+            JsonElement root = doc.RootElement.GetProperty("results");
+
+            var filmes = new List<Filme>();
+            foreach (var item in root.EnumerateArray())
+            {
+                filmes.Add(new Filme
+                {
+                    Id = item.GetProperty("id").GetInt32(),
+                    Titulo = item.GetProperty("title").GetString(),
+                    Genero = idGenero.ToString(), // Gênero sendo representado pelo ID
+                    Sinopse = item.GetProperty("overview").GetString(),
+                    AnoLancamento = int.TryParse(item.GetProperty("release_date").GetString()?.Split('-')[0], out var ano) ? ano : 0
+                });
+            }
+
+            return filmes;
+        }
 
         public async Task<Filme?> GetFilmeByIdAsync(int id)
         {
@@ -97,7 +123,7 @@ namespace api_web_services_avaliacao_manager.Services
         public string Title { get; set; }
         public string Overview { get; set; }
         public string ReleaseDate { get; set; }
-        public List<TMDBGenero> Genres { get; set; } 
+        public List<TMDBGenero> Genres { get; set; }
     }
 
     public class TMDBGenero
@@ -105,5 +131,4 @@ namespace api_web_services_avaliacao_manager.Services
         public int Id { get; set; }
         public string Name { get; set; }
     }
-
 }

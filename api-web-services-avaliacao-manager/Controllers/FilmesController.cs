@@ -17,7 +17,6 @@ namespace api_web_services_avaliacao_manager.Controllers
             _tmdbService = tmdbService;
         }
 
-        
         [HttpGet("tmdb")]
         public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB([FromQuery] string? genero)
         {
@@ -28,10 +27,9 @@ namespace api_web_services_avaliacao_manager.Controllers
                 return NotFound("Nenhum filme encontrado.");
             }
 
-            
             if (!string.IsNullOrEmpty(genero))
             {
-                filmesPopulares = filmesPopulares.FindAll(f => f.Genero.ToLower() == genero.ToLower());
+                filmesPopulares = filmesPopulares.FindAll(f => f.Genero?.ToLower() == genero.ToLower());
 
                 if (filmesPopulares.Count == 0)
                 {
@@ -42,7 +40,6 @@ namespace api_web_services_avaliacao_manager.Controllers
             return Ok(filmesPopulares);
         }
 
-        
         [HttpGet("tmdb/{id}")]
         public async Task<ActionResult<Filme>> GetFilmeById(int id)
         {
@@ -54,6 +51,19 @@ namespace api_web_services_avaliacao_manager.Controllers
             }
 
             return Ok(filme);
+        }
+
+        [HttpGet("genero/{idGenero}")]
+        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPorGenero(int idGenero)
+        {
+            var filmes = await _tmdbService.ObterFilmesPorGenero(idGenero);
+
+            if (filmes == null || filmes.Count == 0)
+            {
+                return NotFound($"Nenhum filme encontrado para o gênero {idGenero}.");
+            }
+
+            return Ok(filmes);
         }
     }
 }
