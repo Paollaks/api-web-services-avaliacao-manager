@@ -113,7 +113,7 @@ namespace api_web_services_avaliacao_manager.Controllers
     public class AvaliacaoDTO
     {
         public int FilmeId { get; set; }
-        public string TituloFilme { get; set; } // 🔹 Adicionado para armazenar o título
+        public string TituloFilme { get; set; }
         public string Usuario { get; set; }
         public double Nota { get; set; }
         public string Comentario { get; set; }
