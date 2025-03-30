@@ -11,8 +11,8 @@ using api_web_services_avaliacao_manager.Models;
 namespace api_web_services_avaliacao_manager.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250320022150_M002")]
-    partial class M002
+    [Migration("20250328235539_add-migration M01")]
+    partial class addmigrationM01
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,21 +23,6 @@ namespace api_web_services_avaliacao_manager.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("FilmeUsuario", b =>
-                {
-                    b.Property<int>("FavoritosId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuariosFavoritaramId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FavoritosId", "UsuariosFavoritaramId");
-
-                    b.HasIndex("UsuariosFavoritaramId");
-
-                    b.ToTable("FilmeUsuario");
-                });
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Comentario", b =>
                 {
@@ -58,8 +43,6 @@ namespace api_web_services_avaliacao_manager.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FilmeId");
-
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Comentarios");
@@ -79,12 +62,6 @@ namespace api_web_services_avaliacao_manager.Migrations
                     b.Property<string>("Genero")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("NotaMedia")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("NumeroAvaliacoes")
-                        .HasColumnType("int");
-
                     b.Property<string>("Sinopse")
                         .HasColumnType("nvarchar(max)");
 
@@ -92,9 +69,54 @@ namespace api_web_services_avaliacao_manager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UsuarioId");
+
                     b.ToTable("Filmes");
+                });
+
+            modelBuilder.Entity("api_web_services_avaliacao_manager.Models.LinkDTO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ComentarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FilmeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Href")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Metodo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComentarioId");
+
+                    b.HasIndex("FilmeId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("LinkDTO");
                 });
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Usuario", b =>
@@ -118,29 +140,8 @@ namespace api_web_services_avaliacao_manager.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("FilmeUsuario", b =>
-                {
-                    b.HasOne("api_web_services_avaliacao_manager.Models.Filme", null)
-                        .WithMany()
-                        .HasForeignKey("FavoritosId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api_web_services_avaliacao_manager.Models.Usuario", null)
-                        .WithMany()
-                        .HasForeignKey("UsuariosFavoritaramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Comentario", b =>
                 {
-                    b.HasOne("api_web_services_avaliacao_manager.Models.Filme", null)
-                        .WithMany("Comentarios")
-                        .HasForeignKey("FilmeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("api_web_services_avaliacao_manager.Models.Usuario", "Usuario")
                         .WithMany("Comentarios")
                         .HasForeignKey("UsuarioId")
@@ -152,12 +153,43 @@ namespace api_web_services_avaliacao_manager.Migrations
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Filme", b =>
                 {
-                    b.Navigation("Comentarios");
+                    b.HasOne("api_web_services_avaliacao_manager.Models.Usuario", null)
+                        .WithMany("Favoritos")
+                        .HasForeignKey("UsuarioId");
+                });
+
+            modelBuilder.Entity("api_web_services_avaliacao_manager.Models.LinkDTO", b =>
+                {
+                    b.HasOne("api_web_services_avaliacao_manager.Models.Comentario", null)
+                        .WithMany("Links")
+                        .HasForeignKey("ComentarioId");
+
+                    b.HasOne("api_web_services_avaliacao_manager.Models.Filme", null)
+                        .WithMany("Links")
+                        .HasForeignKey("FilmeId");
+
+                    b.HasOne("api_web_services_avaliacao_manager.Models.Usuario", null)
+                        .WithMany("Links")
+                        .HasForeignKey("UsuarioId");
+                });
+
+            modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Comentario", b =>
+                {
+                    b.Navigation("Links");
+                });
+
+            modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Filme", b =>
+                {
+                    b.Navigation("Links");
                 });
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Usuario", b =>
                 {
                     b.Navigation("Comentarios");
+
+                    b.Navigation("Favoritos");
+
+                    b.Navigation("Links");
                 });
 #pragma warning restore 612, 618
         }
