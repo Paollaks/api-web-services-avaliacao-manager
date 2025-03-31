@@ -5,19 +5,36 @@
 namespace api_web_services_avaliacao_manager.Migrations
 {
     /// <inheritdoc />
-    public partial class addmigrationM01 : Migration
+    public partial class M00 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Filmes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Titulo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AnoLancamento = table.Column<int>(type: "int", nullable: false),
+                    Genero = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Sinopse = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IdFilme = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Filmes", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Nome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Senha = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -38,6 +55,12 @@ namespace api_web_services_avaliacao_manager.Migrations
                 {
                     table.PrimaryKey("PK_Comentarios", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Comentarios_Filmes_FilmeId",
+                        column: x => x.FilmeId,
+                        principalTable: "Filmes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Comentarios_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
                         principalTable: "Usuarios",
@@ -46,25 +69,27 @@ namespace api_web_services_avaliacao_manager.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Filmes",
+                name: "Favoritos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Titulo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AnoLancamento = table.Column<int>(type: "int", nullable: false),
-                    Genero = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Sinopse = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UsuarioId = table.Column<int>(type: "int", nullable: true)
+                    IdUsuario = table.Column<int>(type: "int", nullable: false),
+                    IdFilme = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Filmes", x => x.Id);
+                    table.PrimaryKey("PK_Favoritos", x => new { x.IdUsuario, x.IdFilme });
                     table.ForeignKey(
-                        name: "FK_Filmes_Usuarios_UsuarioId",
-                        column: x => x.UsuarioId,
+                        name: "FK_Favoritos_Filmes_IdFilme",
+                        column: x => x.IdFilme,
+                        principalTable: "Filmes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Favoritos_Usuarios_IdUsuario",
+                        column: x => x.IdUsuario,
                         principalTable: "Usuarios",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,9 +98,9 @@ namespace api_web_services_avaliacao_manager.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Href = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rel = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Metodo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Href = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rel = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Metodo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ComentarioId = table.Column<int>(type: "int", nullable: true),
                     FilmeId = table.Column<int>(type: "int", nullable: true),
                     UsuarioId = table.Column<int>(type: "int", nullable: true)
@@ -101,14 +126,19 @@ namespace api_web_services_avaliacao_manager.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comentarios_FilmeId",
+                table: "Comentarios",
+                column: "FilmeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comentarios_UsuarioId",
                 table: "Comentarios",
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Filmes_UsuarioId",
-                table: "Filmes",
-                column: "UsuarioId");
+                name: "IX_Favoritos_IdFilme",
+                table: "Favoritos",
+                column: "IdFilme");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LinkDTO_ComentarioId",
@@ -129,6 +159,9 @@ namespace api_web_services_avaliacao_manager.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Favoritos");
+
             migrationBuilder.DropTable(
                 name: "LinkDTO");
 
