@@ -49,7 +49,8 @@ namespace api_web_services_avaliacao_manager.Services
                         Titulo = item.Title,
                         AnoLancamento = int.TryParse(item.ReleaseDate?.Split('-')[0], out var ano) ? ano : 0,
                         Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
-                        Sinopse = item.Overview
+                        Sinopse = item.Overview,
+                        FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}"
                     });
                 }
             }
@@ -79,7 +80,8 @@ namespace api_web_services_avaliacao_manager.Services
                     Titulo = item.GetProperty("title").GetString(),
                     Genero = idGenero.ToString(), // Gênero sendo representado pelo ID
                     Sinopse = item.GetProperty("overview").GetString(),
-                    AnoLancamento = int.TryParse(item.GetProperty("release_date").GetString()?.Split('-')[0], out var ano) ? ano : 0
+                    AnoLancamento = int.TryParse(item.GetProperty("release_date").GetString()?.Split('-')[0], out var ano) ? ano : 0,
+                    FotoUrl = $"https://image.tmdb.org/t/p/w500{item.GetProperty("poster_path").GetString()}"
                 });
             }
 
@@ -107,7 +109,8 @@ namespace api_web_services_avaliacao_manager.Services
                 Titulo = item.Title,
                 AnoLancamento = int.TryParse(item.ReleaseDate?.Split('-')[0], out var ano) ? ano : 0,
                 Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
-                Sinopse = item.Overview
+                Sinopse = item.Overview,
+                FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}"
             };
         }
     }
@@ -124,6 +127,8 @@ namespace api_web_services_avaliacao_manager.Services
         public string Overview { get; set; }
         public string ReleaseDate { get; set; }
         public List<TMDBGenero> Genres { get; set; }
+
+        public string PosterPath { get; set; }
     }
 
     public class TMDBGenero

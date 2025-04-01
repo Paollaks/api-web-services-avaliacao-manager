@@ -20,6 +20,8 @@
 
         public string Sinopse { get; set; }
 
+        public string FotoUrl { get; set; }
+
         // Relacionamento N:N com Usuario (tabela de junção Favorito)
         public ICollection<Favorito> UsuariosFavoritaram { get; set; } = new List<Favorito>();
 

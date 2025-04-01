@@ -43,11 +43,6 @@ namespace api_web_services_avaliacao_manager.Controllers
                     return NotFound("Filme não encontrado.");
                 }
 
-                //filme.IdFilme = favorito.IdFilme; // Certifique-se de que IdFilme está sendo preenchido corretamente
-                //_context.Filmes.Add(filme);
-                //await _context.SaveChangesAsync();
-
-
                 _context.Filmes.Add(filme);
                 await _context.SaveChangesAsync();
             }
