@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using api_web_services_avaliacao_manager.Utils;
 using api_web_services_avaliacao_manager.Models;
 
 namespace api_web_services_avaliacao_manager.Services
@@ -77,7 +78,7 @@ namespace api_web_services_avaliacao_manager.Services
                 {
                     Id = item.GetProperty("id").GetInt32(),
                     Titulo = item.GetProperty("title").GetString(),
-                    Genero = idGenero.ToString(), // Gênero sendo representado pelo ID
+                    Genero = GenerosTMDB.Generos.TryGetValue(idGenero, out var nomeGenero) ? nomeGenero : "Desconhecido",
                     Sinopse = item.GetProperty("overview").GetString(),
                     AnoLancamento = int.TryParse(item.GetProperty("release_date").GetString()?.Split('-')[0], out var ano) ? ano : 0
                 });
@@ -101,34 +102,41 @@ namespace api_web_services_avaliacao_manager.Services
 
             if (item == null) return null;
 
+            int anoLancamento = 0;
+            if (!string.IsNullOrWhiteSpace(item.ReleaseDate) && item.ReleaseDate.Length >=4)
+            {
+                int.TryParse(item.ReleaseDate.Substring(0, 4), out anoLancamento);
+            }
+
             return new Filme
             {
                 Id = item.Id,
                 Titulo = item.Title,
-                AnoLancamento = int.TryParse(item.ReleaseDate?.Split('-')[0], out var ano) ? ano : 0,
+                AnoLancamento = anoLancamento,
                 Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
                 Sinopse = item.Overview
             };
         }
-    }
 
-    public class TMDBResponse
-    {
-        public List<TMDBFilme> Results { get; set; }
-    }
 
-    public class TMDBFilme
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Overview { get; set; }
-        public string ReleaseDate { get; set; }
-        public List<TMDBGenero> Genres { get; set; }
-    }
+        public class TMDBResponse
+        {
+            public List<TMDBFilme> Results { get; set; }
+        }
 
-    public class TMDBGenero
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public class TMDBFilme
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+            public string Overview { get; set; }
+            public string ReleaseDate { get; set; }
+            public List<TMDBGenero> Genres { get; set; }
+        }
+
+        public class TMDBGenero
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
     }
 }
