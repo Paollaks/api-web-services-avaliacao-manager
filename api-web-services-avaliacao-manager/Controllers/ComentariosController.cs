@@ -1,4 +1,5 @@
 ﻿using api_web_services_avaliacao_manager.Models;
+using api_web_services_avaliacao_manager.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,14 @@ namespace api_web_services_avaliacao_manager.Controllers
     public class ComentariosController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public ComentariosController(AppDbContext context)
+        private readonly TMDBService _tmdbService;
+
+        public ComentariosController(AppDbContext context, TMDBService tmdbService)
         {
             _context = context;
+            _tmdbService = tmdbService;
         }
+
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
@@ -25,7 +30,9 @@ namespace api_web_services_avaliacao_manager.Controllers
         public async Task<ActionResult> Create(Comentario model)
         {
             _context.Comentarios.Add(model);
+
             await _context.SaveChangesAsync();
+
             return CreatedAtAction("GetById", new { id = model.Id }, model);
         }
 
