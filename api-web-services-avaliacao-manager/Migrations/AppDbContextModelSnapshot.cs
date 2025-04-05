@@ -32,10 +32,10 @@ namespace api_web_services_avaliacao_manager.Migrations
                     b.Property<int?>("FilmeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdFilme")
+                    b.Property<int>("IdUsuario")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuario")
+                    b.Property<int>("TMDBFilmeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Texto")
@@ -162,15 +162,13 @@ namespace api_web_services_avaliacao_manager.Migrations
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Comentario", b =>
                 {
-                    b.HasOne("api_web_services_avaliacao_manager.Models.Filme", "Filme")
+                    b.HasOne("api_web_services_avaliacao_manager.Models.Filme", null)
                         .WithMany("Comentarios")
                         .HasForeignKey("FilmeId");
 
                     b.HasOne("api_web_services_avaliacao_manager.Models.Usuario", null)
                         .WithMany("Comentarios")
                         .HasForeignKey("UsuarioId");
-
-                    b.Navigation("Filme");
                 });
 
             modelBuilder.Entity("api_web_services_avaliacao_manager.Models.Favorito", b =>

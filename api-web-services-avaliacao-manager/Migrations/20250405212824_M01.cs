@@ -49,7 +49,7 @@ namespace api_web_services_avaliacao_manager.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Texto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdUsuario = table.Column<int>(type: "int", nullable: false),
-                    IdFilme = table.Column<int>(type: "int", nullable: false),
+                    TMDBFilmeId = table.Column<int>(type: "int", nullable: false),
                     FilmeId = table.Column<int>(type: "int", nullable: true),
                     UsuarioId = table.Column<int>(type: "int", nullable: true)
                 },

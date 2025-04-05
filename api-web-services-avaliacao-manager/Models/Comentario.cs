@@ -16,9 +16,7 @@
 
         public int IdUsuario { get; set; }
 
-        public int IdFilme { get; set; }
-
-        [ForeignKey("IdFilme")]
-        public Filme Filme { get; set; }
+        // Adicionando a referência ao Id do TMDBFilme
+        public int TMDBFilmeId { get; set; }
     }
 }
