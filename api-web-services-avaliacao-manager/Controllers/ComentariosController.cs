@@ -29,34 +29,34 @@ namespace api_web_services_avaliacao_manager.Controllers
             return CreatedAtAction("GetById", new { id = model.Id }, model);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetById(int id)
+        [HttpGet("{Id}")]
+        public async Task<ActionResult> GetById(int Id)
         {
             var model = await _context.Comentarios
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == Id);
             if (model == null) return NotFound();
 
             GerarLinks(model);
             return Ok(model);
 
         }
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Comentario model)
+        [HttpPut("{Id}")]
+        public async Task<ActionResult> Update(int Id, Comentario model)
         {
-            if (id != model.Id) return BadRequest();
+            if (Id != model.Id) return BadRequest();
 
-            var modeloDb = await _context.Comentarios.AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
-            if (modeloDb == null) return NotFound();
+            var modelDb = await _context.Comentarios.AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == Id);
+            if (modelDb == null) return NotFound();
             _context.Comentarios.Update(model);
             await _context.SaveChangesAsync();
             return NoContent();
 
         }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpDelete("{Id}")]
+        public async Task<ActionResult> Delete(int Id)
         {
-            var model = await _context.Comentarios.FindAsync(id);
+            var model = await _context.Comentarios.FindAsync(Id);
 
             if (model == null) return NotFound();
 

@@ -6,6 +6,9 @@
     
     public class Filme : LinksHATEOS
     {
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Permite definir o ID manualmente
         public int Id { get; set; }  
 
         [Required]
@@ -13,9 +16,16 @@
 
         public int AnoLancamento { get; set; }  
 
-        public string? Genero { get; set; }  
+        public string Genero { get; set; }  
 
-        public string? Sinopse { get; set; }
-        public int IdFilme { get; internal set; }
+        public string Sinopse { get; set; }
+
+        public string FotoUrl { get; set; }
+
+        // Relacionamento N:N com Usuario (tabela de junção Favorito)
+        public ICollection<Favorito> UsuariosFavoritaram { get; set; } = new List<Favorito>();
+
+        // Relacionamento N:N com Usuario (tabela de junção Comentario)
+        public ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
     }
 }

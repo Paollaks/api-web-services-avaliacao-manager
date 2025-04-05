@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/usuarios")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
@@ -14,21 +14,16 @@ namespace api_web_services_avaliacao_manager.Controllers
         {
             _context = context;
         }
+
+        //GET: api/usuarios
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            var model = await _context.Usuarios.ToListAsync();
-            return Ok(model);
+            var usuarios = await _context.Usuarios.Include(u => u.Favoritos).Include(u => u.Comentarios).ToListAsync();
+            return Ok(usuarios);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Create(Usuario model)
-        {
-            _context.Usuarios.Add(model);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetById", new { id = model.Id }, model);
-        }
-
+        // GET: api/usuarios/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
@@ -39,6 +34,32 @@ namespace api_web_services_avaliacao_manager.Controllers
             return Ok(model);
 
         }
+
+
+        // POST: api/usuarios
+        [HttpPost]
+        public async Task<ActionResult> AddUsuario(Usuario usuario)
+        {
+            // Verifica se já existe um usuário com o mesmo e-mail e o mesmo idNome
+            if (_context.Usuarios.Any(u => u.Email == usuario.Email))
+            {
+                return BadRequest("Já existe um usuário com esse e-mail.");
+            }
+
+            try
+            {
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(AddUsuario), new { id = usuario.Id }, usuario);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // PUT: api/usuarios/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, Usuario model)
         {
@@ -52,6 +73,8 @@ namespace api_web_services_avaliacao_manager.Controllers
             return NoContent();
 
         }
+
+        // DELETE: api/usuarios/{id}
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
