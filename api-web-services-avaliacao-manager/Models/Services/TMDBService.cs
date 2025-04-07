@@ -89,7 +89,7 @@ namespace api_web_services_avaliacao_manager.Services
             return filmes;
         }
 
-        public async Task<Filme?> GetFilmeByIdAsync(int id)
+        public async Task<Filme> GetFilmeByIdAsync(int id)
         {
             var url = $"{BaseUrl}/movie/{id}?api_key={_apiKey}&language=pt-BR";
 

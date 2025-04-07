@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/filmes")]
     [ApiController]
     public class FilmesController : ControllerBase
     {

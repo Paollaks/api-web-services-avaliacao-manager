@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/usuarios")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
