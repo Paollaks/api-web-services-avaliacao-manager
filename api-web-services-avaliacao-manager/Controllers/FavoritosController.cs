@@ -8,7 +8,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 {
     //comentario teste 
 
-    [Route("api/favoritos")]
+    [Route("api/Favoritos")]
     [ApiController]
     public class FavoritosController : ControllerBase
     {

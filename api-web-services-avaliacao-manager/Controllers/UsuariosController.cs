@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-    [Route("api/usuarios")]
+    [Route("api/Usuarios")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public UsuariosController (AppDbContext context)
+        public UsuariosController(AppDbContext context)
         {
             _context = context;
         }
@@ -40,14 +40,23 @@ namespace api_web_services_avaliacao_manager.Controllers
         [HttpPost]
         public async Task<ActionResult> AddUsuario(Usuario usuario)
         {
-            // Verifica se já existe um usuário com o mesmo e-mail e o mesmo idNome
+            // Verifica se já existe um usuário com o mesmo UserName
+            if (_context.Usuarios.Any(u => u.NomeDeUsuario == usuario.NomeDeUsuario))
+            {
+                return BadRequest("Já existe um usuário com esse Nome de Usuário.");
+            }
+
+            // Verifica se já existe um usuário com o mesmo e-mail
             if (_context.Usuarios.Any(u => u.Email == usuario.Email))
             {
-                return BadRequest("Já existe um usuário com esse e-mail.");
+                return BadRequest("Já existe um usuário com esse E-mail.");
             }
 
             try
             {
+                // Hash da senha antes de salvar
+                usuario.SetSenha(usuario.Senha);
+
                 _context.Usuarios.Add(usuario);
                 await _context.SaveChangesAsync();
 
@@ -68,10 +77,16 @@ namespace api_web_services_avaliacao_manager.Controllers
             var modeloDb = await _context.Usuarios.AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (modeloDb == null) return NotFound();
+
+            // Hash da senha antes de atualizar
+            if (!string.IsNullOrEmpty(model.Senha))
+            {
+                model.SetSenha(model.Senha);
+            }
+
             _context.Usuarios.Update(model);
             await _context.SaveChangesAsync();
             return NoContent();
-
         }
 
         // DELETE: api/usuarios/{id}

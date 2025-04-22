@@ -6,18 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-    [Route("api/comentarios")]
+    [Route("api/Comentarios")]
     [ApiController]
-    public class ComentariosController : ControllerBase
+    public class ComentariosController(AppDbContext context, TMDBService tmdbService) : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly TMDBService _tmdbService;
-
-        public ComentariosController(AppDbContext context, TMDBService tmdbService)
-        {
-            _context = context;
-            _tmdbService = tmdbService;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly TMDBService _tmdbService = tmdbService;
 
         [HttpGet]
         public async Task<ActionResult> GetAll()

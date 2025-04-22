@@ -5,6 +5,7 @@ namespace api_web_services_avaliacao_manager.Models
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using BCrypt.Net;
 
     [Table("Usuarios")]
     public class Usuario : LinksHATEOS
@@ -14,21 +15,32 @@ namespace api_web_services_avaliacao_manager.Models
 
         [Required]
         [MaxLength(50)]
-        public string Nome { get; set; }
+        public string NomeCompleto { get; set; }
+
+        [Required]
+        [MaxLength(30)]
+        public string NomeDeUsuario { get; set; }
 
         [Required]
         [EmailAddress]
         [MaxLength(50)]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } 
 
         [Required]
-        [MaxLength(20)]
         public string Senha { get; set; }
 
-        // Relacionamento N:N com Filme (tabela de junção Favorito)
         public ICollection<Favorito> Favoritos { get; set; } = new List<Favorito>();
-
-        // Relacionamento N:N com Filme (tabela de junção Comentario)
         public ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
+
+
+        public void SetSenha(string senha)
+        {
+            Senha = BCrypt.HashPassword(senha);
+        }
+
+        public bool VerificarSenha(string senha)
+        {
+            return BCrypt.Verify(senha, Senha);
+        }
     }
 }
