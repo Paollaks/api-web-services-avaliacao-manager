@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
+using System.Text.Json.Serialization;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
@@ -19,19 +21,36 @@ namespace api_web_services_avaliacao_manager.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            var usuarios = await _context.Usuarios.Include(u => u.Favoritos).Include(u => u.Comentarios).ToListAsync();
-            return Ok(usuarios);
+            var Usuarios = await _context.Usuarios.Include(u => u.Favoritos).Include(u => u.Comentarios).ToListAsync();
+
+            return Ok(Usuarios.Select(u => new UsuarioDTO
+            {
+                Id = u.Id,
+                NomeCompleto = u.NomeCompleto,
+                NomeDeUsuario = u.NomeDeUsuario,
+                Email = u.Email,
+                Comentarios = u.Comentarios,
+                Favoritos = u.Favoritos
+            }));
         }
 
         // GET: api/usuarios/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
-            var model = await _context.Usuarios
+            var model = await _context.Usuarios.Include(u => u.Favoritos).Include(u => u.Comentarios)
+               .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);
             if (model == null) return NotFound();
 
-            return Ok(model);
+            return Ok(new UsuarioDTO {
+                Id = model.Id,
+                NomeCompleto = model.NomeCompleto,
+                NomeDeUsuario = model.NomeDeUsuario,
+                Email = model.Email,
+                Comentarios = model.Comentarios,
+                Favoritos = model.Favoritos
+            });
 
         }
 
@@ -40,32 +59,53 @@ namespace api_web_services_avaliacao_manager.Controllers
         [HttpPost]
         public async Task<ActionResult> AddUsuario(Usuario usuario)
         {
-            // Verifica se já existe um usuário com o mesmo UserName
-            if (_context.Usuarios.Any(u => u.NomeDeUsuario == usuario.NomeDeUsuario))
+            // Validação básica dos dados recebidos
+            if (string.IsNullOrWhiteSpace(usuario.NomeCompleto) ||
+                string.IsNullOrWhiteSpace(usuario.NomeDeUsuario) ||
+                string.IsNullOrWhiteSpace(usuario.Email) ||
+                string.IsNullOrWhiteSpace(usuario.Senha))
             {
-                return BadRequest("Já existe um usuário com esse Nome de Usuário.");
+                return BadRequest("Todos os campos são obrigatórios.");
             }
 
-            // Verifica se já existe um usuário com o mesmo e-mail
-            if (_context.Usuarios.Any(u => u.Email == usuario.Email))
+            // Verificar se o NomeDeUsuario ou Email já existem em uma única consulta
+            var usuarioExistente = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.NomeDeUsuario == usuario.NomeDeUsuario || u.Email == usuario.Email);
+
+            if (usuarioExistente != null)
             {
-                return BadRequest("Já existe um usuário com esse E-mail.");
+                if (usuarioExistente.NomeDeUsuario == usuario.NomeDeUsuario)
+                {
+                    return BadRequest("Já existe um usuário com esse Nome de Usuário.");
+                }
+
+                if (usuarioExistente.Email == usuario.Email)
+                {
+                    return BadRequest("Já existe um usuário com esse E-mail.");
+                }
             }
 
-            try
+            // Criar o novo usuário com a senha criptografada
+            var novoUsuario = new Usuario
             {
-                // Hash da senha antes de salvar
-                usuario.SetSenha(usuario.Senha);
+                NomeCompleto = usuario.NomeCompleto,
+                NomeDeUsuario = usuario.NomeDeUsuario,
+                Email = usuario.Email,
+                Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha)
+            };
 
-                _context.Usuarios.Add(usuario);
-                await _context.SaveChangesAsync();
+            // Adicionar o novo usuário ao contexto
+            _context.Usuarios.Add(novoUsuario);
+            await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(AddUsuario), new { id = usuario.Id }, usuario);
-            }
-            catch (Exception ex)
+            // Retornar o resultado sem expor a senha
+            return CreatedAtAction("GetById", new { id = novoUsuario.Id }, new
             {
-                return BadRequest(ex.Message);
-            }
+                novoUsuario.Id,
+                novoUsuario.NomeCompleto,
+                novoUsuario.NomeDeUsuario,
+                novoUsuario.Email
+            });
         }
 
         // PUT: api/usuarios/{id}
@@ -78,11 +118,10 @@ namespace api_web_services_avaliacao_manager.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (modeloDb == null) return NotFound();
 
-            // Hash da senha antes de atualizar
-            if (!string.IsNullOrEmpty(model.Senha))
-            {
-                model.SetSenha(model.Senha);
-            }
+            modeloDb.NomeCompleto = model.NomeCompleto;
+            modeloDb.NomeDeUsuario = model.NomeDeUsuario;
+            modeloDb.Senha = BCrypt.Net.BCrypt.HashPassword(model.Senha);
+            modeloDb.Email = model.Email;
 
             _context.Usuarios.Update(model);
             await _context.SaveChangesAsync();
