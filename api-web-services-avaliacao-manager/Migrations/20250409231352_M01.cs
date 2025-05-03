@@ -48,10 +48,10 @@ namespace api_web_services_avaliacao_manager.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Texto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdUsuario = table.Column<int>(type: "int", nullable: false),
-                    TMDBFilmeId = table.Column<int>(type: "int", nullable: false),
-                    FilmeId = table.Column<int>(type: "int", nullable: true),
-                    UsuarioId = table.Column<int>(type: "int", nullable: true)
+                    IdUsuario = table.Column<int>(type: "int", nullable: true),
+                    TMDBFilmeId = table.Column<int>(type: "int", nullable: true),
+                    FilmeId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

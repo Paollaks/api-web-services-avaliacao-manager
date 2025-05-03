@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
+<<<<<<< HEAD
+    [Route("api/comentarios")]
+=======
     [Route("api/Comentarios")]
+>>>>>>> 764877b3bda7485d901b4859b367b84258bae895
     [ApiController]
     public class ComentariosController(AppDbContext context, TMDBService tmdbService) : ControllerBase
     {
