@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using api_web_services_avaliacao_manager.Utils;
 using api_web_services_avaliacao_manager.Models;
@@ -51,7 +52,8 @@ namespace api_web_services_avaliacao_manager.Services
                         AnoLancamento = int.TryParse(item.ReleaseDate?.Split('-')[0], out var ano) ? ano : 0,
                         Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
                         Sinopse = item.Overview,
-                        FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}"
+                        FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}",
+                        NotaMedia = item.VoteAverage
                     });
                 }
             }
@@ -82,7 +84,8 @@ namespace api_web_services_avaliacao_manager.Services
                     Genero = GenerosTMDB.Generos.TryGetValue(idGenero, out var nomeGenero) ? nomeGenero : "Desconhecido",
                     Sinopse = item.GetProperty("overview").GetString(),
                     AnoLancamento = int.TryParse(item.GetProperty("release_date").GetString()?.Split('-')[0], out var ano) ? ano : 0,
-                    FotoUrl = $"https://image.tmdb.org/t/p/w500{item.GetProperty("poster_path").GetString()}"
+                    FotoUrl = $"https://image.tmdb.org/t/p/w500{item.GetProperty("poster_path").GetString()}",
+                    NotaMedia = item.GetProperty("vote_average").GetDouble()
                 });
             }
 
@@ -117,7 +120,9 @@ namespace api_web_services_avaliacao_manager.Services
                 AnoLancamento = anoLancamento,
                 Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
                 Sinopse = item.Overview,
-                FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}"
+                FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}",
+                NotaMedia = item.VoteAverage
+
             };
         }
 
@@ -136,7 +141,10 @@ namespace api_web_services_avaliacao_manager.Services
         public List<TMDBGenero> Genres { get; set; }
 
         public string PosterPath { get; set; }
-    }
+            
+        [JsonPropertyName("vote_average")]
+        public double VoteAverage { get; set; }
+        }
 
         public class TMDBGenero
         {
