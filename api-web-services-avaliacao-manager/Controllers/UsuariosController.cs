@@ -114,14 +114,14 @@ namespace api_web_services_avaliacao_manager.Controllers
         {
             if (id != model.Id) return BadRequest();
 
-            var modeloDb = await _context.Usuarios.AsNoTracking()
+            var modelDb = await _context.Usuarios.AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
-            if (modeloDb == null) return NotFound();
+            if (modelDb == null) return NotFound();
 
-            modeloDb.NomeCompleto = model.NomeCompleto;
-            modeloDb.NomeDeUsuario = model.NomeDeUsuario;
-            modeloDb.Senha = BCrypt.Net.BCrypt.HashPassword(model.Senha);
-            modeloDb.Email = model.Email;
+            modelDb.NomeCompleto = model.NomeCompleto;
+            modelDb.NomeDeUsuario = model.NomeDeUsuario;
+            modelDb.Senha = BCrypt.Net.BCrypt.HashPassword(model.Senha);
+            modelDb.Email = model.Email;
 
             _context.Usuarios.Update(model);
             await _context.SaveChangesAsync();
