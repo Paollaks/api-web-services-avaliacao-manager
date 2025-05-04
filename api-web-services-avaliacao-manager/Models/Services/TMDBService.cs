@@ -29,36 +29,56 @@ namespace api_web_services_avaliacao_manager.Services
 
         public async Task<List<Filme>> GetFilmesPopularesAsync()
         {
-            var url = $"{BaseUrl}/movie/popular?api_key={_apiKey}&language=pt-BR";
-
-            var response = await _httpClient.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
-            {
-                return new List<Filme>();
-            }
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var tmdbResponse = JsonSerializer.Deserialize<TMDBResponse>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
             var filmes = new List<Filme>();
-            if (tmdbResponse?.Results != null)
+
+            for (int page = 1; page <= 3; page++) // 👈 busca 3 páginas (60 filmes)
             {
-                foreach (var item in tmdbResponse.Results)
+                var url = $"{BaseUrl}/movie/popular?api_key={_apiKey}&language=pt-BR&page={page}";
+
+                var response = await _httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                    continue;
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+                var results = doc.RootElement.GetProperty("results");
+
+                foreach (var item in results.EnumerateArray())
                 {
+                    var id = item.GetProperty("id").GetInt32();
+                    var titulo = item.GetProperty("title").GetString();
+                    var sinopse = item.GetProperty("overview").GetString();
+                    var releaseDate = item.GetProperty("release_date").GetString();
+                    var nota = item.GetProperty("vote_average").GetDouble();
+                    var posterPath = item.GetProperty("poster_path").GetString();
+                    var genreIds = item.GetProperty("genre_ids").EnumerateArray().Select(g => g.GetInt32()).ToList();
+
+                    var genero = genreIds.Count > 0 && GenerosTMDB.Generos.TryGetValue(genreIds[0], out var nomeGenero)
+                        ? nomeGenero
+                        : "Desconhecido";
+
+                    var ano = int.TryParse(releaseDate?.Split('-')[0], out var anoExtraido) ? anoExtraido : 0;
+
+                    var fotoUrl = !string.IsNullOrEmpty(posterPath)
+                        ? $"https://image.tmdb.org/t/p/w500{posterPath}"
+                        : null;
+
                     filmes.Add(new Filme
                     {
-                        Id = item.Id,
-                        Titulo = item.Title,
-                        AnoLancamento = int.TryParse(item.ReleaseDate?.Split('-')[0], out var ano) ? ano : 0,
-                        Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
-                        Sinopse = item.Overview,
-                        FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}",
-                        NotaMedia = item.VoteAverage
+                        Id = id,
+                        Titulo = titulo,
+                        AnoLancamento = ano,
+                        Genero = genero,
+                        Sinopse = sinopse,
+                        FotoUrl = fotoUrl,
+                        NotaMedia = nota
                     });
                 }
             }
+
             return filmes;
         }
+
 
         public async Task<List<Filme>> ObterFilmesPorGenero(int idGenero)
         {
@@ -125,6 +145,59 @@ namespace api_web_services_avaliacao_manager.Services
 
             };
         }
+        public async Task<List<Filme>> BuscarFilmesPorTituloAsync(string termo)
+        {
+            var url = $"{BaseUrl}/search/movie?api_key={_apiKey}&language=pt-BR&query={Uri.EscapeDataString(termo)}";
+
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+                return new List<Filme>();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+            var root = doc.RootElement.GetProperty("results");
+
+            var filmes = new List<Filme>();
+            foreach (var item in root.EnumerateArray())
+            {
+                var id = item.GetProperty("id").GetInt32();
+                var titulo = item.GetProperty("title").GetString();
+                var sinopse = item.GetProperty("overview").GetString();
+                var releaseDate = item.GetProperty("release_date").GetString();
+                var nota = item.GetProperty("vote_average").GetDouble();
+                var posterPath = item.GetProperty("poster_path").GetString();
+
+                // Gênero
+                var generoIds = item.TryGetProperty("genre_ids", out var generosElement) && generosElement.ValueKind == JsonValueKind.Array
+                    ? generosElement.EnumerateArray().Select(g => g.GetInt32())
+                    : Enumerable.Empty<int>();
+
+                var nomesGeneros = generoIds
+                    .Where(idGenero => GenerosTMDB.Generos.ContainsKey(idGenero))
+                    .Select(idGenero => GenerosTMDB.Generos[idGenero]);
+
+                var genero = nomesGeneros.Any() ? string.Join(", ", nomesGeneros) : "Desconhecido";
+
+                var ano = int.TryParse(releaseDate?.Split('-')[0], out var anoExtraido) ? anoExtraido : 0;
+                var fotoUrl = !string.IsNullOrEmpty(posterPath)
+                    ? $"https://image.tmdb.org/t/p/w500{posterPath}"
+                    : null;
+
+                filmes.Add(new Filme
+                {
+                    Id = id,
+                    Titulo = titulo,
+                    AnoLancamento = ano,
+                    Genero = genero,
+                    Sinopse = sinopse,
+                    FotoUrl = fotoUrl,
+                    NotaMedia = nota
+                });
+            }
+
+            return filmes;
+        }
+
 
 
         public class TMDBResponse
