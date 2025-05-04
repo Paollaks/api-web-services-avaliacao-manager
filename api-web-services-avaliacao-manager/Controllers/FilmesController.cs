@@ -18,17 +18,27 @@ namespace api_web_services_avaliacao_manager.Controllers
         }
 
         [HttpGet("tmdb")]
-        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB()
+        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB([FromQuery] string? termo)
         {
-            var filmesPopulares = await _tmdbService.GetFilmesPopularesAsync();
+            List<Filme> filmes;
 
-            if (filmesPopulares == null || filmesPopulares.Count == 0)
+            if (!string.IsNullOrWhiteSpace(termo))
+            {
+                filmes = await _tmdbService.BuscarFilmesPorTituloAsync(termo);
+            }
+            else
+            {
+                filmes = await _tmdbService.GetFilmesPopularesAsync();
+            }
+
+            if (filmes == null || filmes.Count == 0)
             {
                 return NotFound("Nenhum filme encontrado.");
             }
 
-            return Ok(filmesPopulares);
+            return Ok(filmes);
         }
+
 
         [HttpGet("tmdb/{id}")]
         public async Task<ActionResult<Filme>> GetFilmeById(int id)
