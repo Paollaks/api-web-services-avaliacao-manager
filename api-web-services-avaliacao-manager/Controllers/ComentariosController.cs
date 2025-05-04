@@ -38,6 +38,39 @@ namespace api_web_services_avaliacao_manager.Controllers
             return Ok(comentariosValidos);
         }
 
+        [HttpGet("usuario/{idUsuario}/filmes")]
+        public async Task<ActionResult> GetFilmesPorUsuario(int idUsuario)
+        {
+            // Buscar os comentários do usuário no banco de dados
+            var comentarios = await _context.Comentarios
+                .Where(c => c.IdUsuario == idUsuario)
+                .ToListAsync();
+
+            if (!comentarios.Any())
+            {
+                return NotFound($"Nenhum comentário encontrado para o usuário com ID {idUsuario}.");
+            }
+
+            // Obter os filmes relacionados aos comentários
+            var filmes = new List<Filme>();
+            foreach (var comentario in comentarios)
+            {
+                var filme = await _tmdbService.GetFilmeByIdAsync(comentario.TMDBFilmeId);
+                if (filme != null && !filmes.Any(f => f.Id == filme.Id)) // Evitar duplicatas
+                {
+                    filmes.Add(filme);
+                }
+            }
+
+            if (!filmes.Any())
+            {
+                return NotFound($"Nenhum filme relacionado encontrado para o usuário com ID {idUsuario}.");
+            }
+
+            return Ok(filmes);
+        }
+
+
         [HttpPost]
         public async Task<ActionResult> Create(Comentario model)
         {
