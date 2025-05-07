@@ -123,7 +123,10 @@ namespace api_web_services_avaliacao_manager.Services
             }
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Resposta da API: {jsonResponse}"); // Log da resposta completa
+
             var item = JsonSerializer.Deserialize<TMDBFilme>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
 
             if (item == null) return null;
 
@@ -133,6 +136,14 @@ namespace api_web_services_avaliacao_manager.Services
                 int.TryParse(item.ReleaseDate.Substring(0, 4), out anoLancamento);
             }
 
+            var posterPath = item.poster_path;
+            Console.WriteLine($"PosterPath retornado pela API: {posterPath}");
+
+            var fotoUrl = !string.IsNullOrEmpty(posterPath)
+                ? $"https://image.tmdb.org/t/p/w500{posterPath}"
+                : null;
+
+
             return new Filme
             {
                 Id = item.Id,
@@ -140,7 +151,7 @@ namespace api_web_services_avaliacao_manager.Services
                 AnoLancamento = anoLancamento,
                 Genero = item.Genres != null ? string.Join(", ", item.Genres.Select(g => g.Name)) : "Desconhecido",
                 Sinopse = item.Overview,
-                FotoUrl = $"https://image.tmdb.org/t/p/w500{item.PosterPath}",
+                FotoUrl = $"https://image.tmdb.org/t/p/w500{posterPath}",
                 NotaMedia = item.VoteAverage
 
             };
@@ -213,7 +224,7 @@ namespace api_web_services_avaliacao_manager.Services
         public string ReleaseDate { get; set; }
         public List<TMDBGenero> Genres { get; set; }
 
-        public string PosterPath { get; set; }
+        public string poster_path { get; set; }
             
         [JsonPropertyName("vote_average")]
         public double VoteAverage { get; set; }
