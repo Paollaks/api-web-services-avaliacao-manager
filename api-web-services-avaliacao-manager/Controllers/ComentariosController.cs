@@ -21,11 +21,12 @@ namespace api_web_services_avaliacao_manager.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll([FromQuery] int? idFilme = null)
         {
+            // Obter todos os comentários
             var comentarios = await _context.Comentarios.ToListAsync();
 
-            // Filtrar apenas os comentários relacionados a filmes válidos
+            // Filtrar os comentários relacionados a filmes válidos
             var comentariosValidos = new List<Comentario>();
             foreach (var comentario in comentarios)
             {
@@ -33,6 +34,14 @@ namespace api_web_services_avaliacao_manager.Controllers
                 {
                     comentariosValidos.Add(comentario);
                 }
+            }
+
+            // Se um ID de filme for fornecido, filtrar os comentários por esse ID
+            if (idFilme.HasValue)
+            {
+                comentariosValidos = comentariosValidos
+                    .Where(c => c.TMDBFilmeId == idFilme.Value)
+                    .ToList();
             }
 
             return Ok(comentariosValidos);
