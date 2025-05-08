@@ -1,12 +1,13 @@
 ﻿using api_web_services_avaliacao_manager.Models;
 using api_web_services_avaliacao_manager.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
-
+    
     [Route("api/Comentarios")]
     [ApiController]
     public class ComentariosController : ControllerBase
@@ -19,7 +20,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             _context = context;
             _tmdbService = tmdbService;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult> GetAll([FromQuery] int? idFilme = null)
         {
@@ -46,7 +47,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 
             return Ok(comentariosValidos);
         }
-
+        [Authorize]
         [HttpGet("usuario/{idUsuario}/filmes")]
         public async Task<ActionResult> GetFilmesPorUsuario(int idUsuario)
         {
@@ -79,7 +80,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             return Ok(filmes);
         }
 
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Create(Comentario model)
         {
@@ -104,7 +105,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             // Retornar o comentário criado
             return CreatedAtAction("GetById", new { id = comentario.Id }, comentario);
         }
-
+        [Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult> GetById(int Id)
         {
@@ -121,6 +122,8 @@ namespace api_web_services_avaliacao_manager.Controllers
             GerarLinks(model);
             return Ok(model);
         }
+
+        [Authorize]
         [HttpPut("{Id}")]
         public async Task<ActionResult> Update(int Id, Comentario model)
         {
@@ -139,6 +142,8 @@ namespace api_web_services_avaliacao_manager.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        [Authorize]
         [HttpDelete("{Id}")]
         public async Task<ActionResult> Delete(int Id)
         {

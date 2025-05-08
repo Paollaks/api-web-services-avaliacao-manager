@@ -83,6 +83,9 @@ namespace api_web_services_avaliacao_manager.Migrations
                     b.Property<string>("Genero")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("NotaMedia")
+                        .HasColumnType("float");
+
                     b.Property<string>("Sinopse")
                         .HasColumnType("nvarchar(max)");
 

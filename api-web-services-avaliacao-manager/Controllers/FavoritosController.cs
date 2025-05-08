@@ -1,5 +1,6 @@
 ﻿using api_web_services_avaliacao_manager.Models;
 using api_web_services_avaliacao_manager.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace api_web_services_avaliacao_manager.Controllers
 {
     //comentario teste 
-
+    [Authorize]
     [Route("api/Favoritos")]
     [ApiController]
     public class FavoritosController : ControllerBase

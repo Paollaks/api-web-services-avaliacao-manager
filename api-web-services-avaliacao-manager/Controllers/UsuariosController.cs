@@ -4,9 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
+    [Authorize]
     [Route("api/Usuarios")]
     [ApiController]
     public class UsuariosController : ControllerBase
@@ -143,7 +149,42 @@ namespace api_web_services_avaliacao_manager.Controllers
 
 
         }
-    
+
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+       
+        public async Task<ActionResult> Authenticate([FromBody] AuthenticateDto usuario)
+        {
+            // Verificar se o usuário existe no banco de dados
+            var usuarioDb = await _context.Usuarios.FirstOrDefaultAsync(u => u.NomeDeUsuario == usuario.NomeDeUsuario);
+            if (usuarioDb == null || !BCrypt.Net.BCrypt.Verify(usuario.Senha, usuarioDb.Senha))
+            {
+                return Unauthorized("Usuário ou senha incorretos.");
+            }
+
+            // Gerar o token JWT
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("LoR$@NeA#*L2M0JsjVf4vSZ91Gcy2Qu#t"); // Use a mesma chave configurada no Program.cs
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+            new Claim(ClaimTypes.Name, usuarioDb.NomeDeUsuario),
+            new Claim(ClaimTypes.NameIdentifier, usuarioDb.Id.ToString())
+        }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return Ok(new
+            {
+                Token = tokenHandler.WriteToken(token)
+
+            });
+        }
+
+
     }
 
 
