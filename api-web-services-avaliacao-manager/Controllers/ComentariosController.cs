@@ -22,7 +22,7 @@ namespace api_web_services_avaliacao_manager.Controllers
         }
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult> GetAll([FromQuery] int? idFilme = null)
+        public async Task<ActionResult> GetAll([FromQuery] int? idFilme, [FromQuery] int? idUsuario)
         {
             // Obter todos os comentários
             var comentarios = await _context.Comentarios.ToListAsync();
@@ -45,7 +45,30 @@ namespace api_web_services_avaliacao_manager.Controllers
                     .ToList();
             }
 
-            return Ok(comentariosValidos);
+            // Se um ID de usuário for fornecido, filtrar os comentários por esse ID
+            if (idUsuario.HasValue)
+            {
+                comentariosValidos = comentariosValidos
+                    .Where(c => c.IdUsuario == idUsuario.Value)
+                    .ToList();
+            }
+
+            // Obter os filmes relacionados aos comentários
+            var filmesRelacionados = new List<object>();
+            foreach (var comentario in comentariosValidos)
+            {
+                var filme = await _tmdbService.GetFilmeByIdAsync(comentario.TMDBFilmeId);
+                if (filme != null)
+                {
+                    filmesRelacionados.Add(new
+                    {
+                        Título = filme.Titulo,
+                        Comentario = comentario.Texto
+                    });
+                }
+            }
+
+            return Ok(filmesRelacionados);
         }
         [Authorize]
         [HttpGet("usuario/{idUsuario}/filmes")]

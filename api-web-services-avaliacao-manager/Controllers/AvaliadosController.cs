@@ -13,7 +13,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 {
    
     [ApiController]
-    [Route("api/avaliacoes")]
+    [Route("api/Avaliacoes")]
     public class AvaliacoesController : ControllerBase
     {
         private readonly HttpClient _httpClient;
