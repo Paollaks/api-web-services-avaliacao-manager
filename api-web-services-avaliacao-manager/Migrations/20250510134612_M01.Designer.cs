@@ -11,7 +11,7 @@ using api_web_services_avaliacao_manager.Models;
 namespace api_web_services_avaliacao_manager.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250509001119_M01")]
+    [Migration("20250510134612_M01")]
     partial class M01
     {
         /// <inheritdoc />

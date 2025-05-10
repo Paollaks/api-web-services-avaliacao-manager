@@ -61,7 +61,7 @@ namespace api_web_services_avaliacao_manager.Controllers
         }
 
 
-        // POST: api/usuarios
+        [AllowAnonymous]// POST: api/usuarios
         [HttpPost]
         public async Task<ActionResult> AddUsuario(Usuario usuario)
         {
