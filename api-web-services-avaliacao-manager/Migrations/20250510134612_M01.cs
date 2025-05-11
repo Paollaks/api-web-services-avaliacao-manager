@@ -19,7 +19,8 @@ namespace api_web_services_avaliacao_manager.Migrations
                     AnoLancamento = table.Column<int>(type: "int", nullable: false),
                     Genero = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Sinopse = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    FotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NotaMedia = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,9 +33,10 @@ namespace api_web_services_avaliacao_manager.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    NomeCompleto = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    NomeDeUsuario = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Senha = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,10 +50,10 @@ namespace api_web_services_avaliacao_manager.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Texto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdUsuario = table.Column<int>(type: "int", nullable: true),
-                    TMDBFilmeId = table.Column<int>(type: "int", nullable: true),
-                    FilmeId = table.Column<int>(type: "int", nullable: false),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false)
+                    IdUsuario = table.Column<int>(type: "int", nullable: false),
+                    TMDBFilmeId = table.Column<int>(type: "int", nullable: false),
+                    FilmeId = table.Column<int>(type: "int", nullable: true),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

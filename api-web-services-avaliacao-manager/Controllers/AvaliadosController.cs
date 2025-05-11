@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using api_web_services_avaliacao_manager.Models;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
+   
     [ApiController]
-    [Route("api/avaliacoes")]
+    [Route("api/Avaliacoes")]
     public class AvaliacoesController : ControllerBase
     {
         private readonly HttpClient _httpClient;
@@ -19,6 +21,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 
         public AvaliacoesController(HttpClient httpClient) => _httpClient = httpClient;
 
+       
         [HttpGet("top-rated")]
         public async Task<IActionResult> GetTopRatedMovies()
         {

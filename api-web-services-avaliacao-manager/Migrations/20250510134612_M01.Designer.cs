@@ -11,8 +11,8 @@ using api_web_services_avaliacao_manager.Models;
 namespace api_web_services_avaliacao_manager.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250422201917_M02")]
-    partial class M02
+    [Migration("20250510134612_M01")]
+    partial class M01
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,6 +85,9 @@ namespace api_web_services_avaliacao_manager.Migrations
 
                     b.Property<string>("Genero")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("NotaMedia")
+                        .HasColumnType("float");
 
                     b.Property<string>("Sinopse")
                         .HasColumnType("nvarchar(max)");

@@ -1,5 +1,6 @@
 ﻿using api_web_services_avaliacao_manager.Models;
 using api_web_services_avaliacao_manager.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace api_web_services_avaliacao_manager.Controllers
 {
     //comentario teste 
-
+    [Authorize]
     [Route("api/Favoritos")]
     [ApiController]
     public class FavoritosController : ControllerBase
@@ -100,6 +101,38 @@ namespace api_web_services_avaliacao_manager.Controllers
                 .ToListAsync();
 
             return Ok(favoritos);
+        }
+
+        [HttpGet("usuario/{idUsuario}/filmes")]
+        public async Task<ActionResult> GetFilmesPorUsuario(int idUsuario)
+        {
+            // Buscar os comentários do usuário no banco de dados
+            var favoritos = await _context.Favoritos
+                .Where(c => c.IdUsuario == idUsuario)
+                .ToListAsync();
+
+            if (!favoritos.Any())
+            {
+                return NotFound($"Nenhum filme favoritado encontrado para o usuário com ID {idUsuario}.");
+            }
+
+            // Obter os filmes relacionados aos comentários
+            var filmes = new List<Filme>();
+            foreach (var favorito in favoritos)
+            {
+                var filme = await _tmdbService.GetFilmeByIdAsync(favorito.IdFilme);
+                if (filme != null && !filmes.Any(f => f.Id == filme.Id)) // Evitar duplicatas
+                {
+                    filmes.Add(filme);
+                }
+            }
+
+            if (!filmes.Any())
+            {
+                return NotFound($"Nenhum filme relacionado encontrado para o usuário com ID {idUsuario}.");
+            }
+
+            return Ok(filmes);
         }
     }
 }
