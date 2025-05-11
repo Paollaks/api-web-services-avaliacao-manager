@@ -26,7 +26,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             try
             {
                 // 🔹 Buscar título do filme
-                string movieUrl = $"https://api.themoviedb.org/3/movie/{filmeId}?api_key={_apiKey}&language=pt-BR";
+                string movieUrl = $"'https://localhost:7252/api/Filmes/tmdb{filmeId}?api_key={_apiKey}&language=pt-BR";
                 HttpResponseMessage movieResponse = await _httpClient.GetAsync(movieUrl);
 
                 if (!movieResponse.IsSuccessStatusCode)
@@ -43,7 +43,7 @@ namespace api_web_services_avaliacao_manager.Controllers
                 }
 
                 // 🔹 Buscar avaliações do filme
-                string url = $"https://api.themoviedb.org/3/movie/{filmeId}/reviews?api_key={_apiKey}&language=pt-BR";
+                string url = $"'https://localhost:7252/api/Filmes/tmdb/{filmeId}/reviews?api_key={_apiKey}&language=pt-BR";
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
