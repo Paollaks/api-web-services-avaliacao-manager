@@ -1,11 +1,13 @@
 ﻿using api_web_services_avaliacao_manager.Models;
 using api_web_services_avaliacao_manager.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace api_web_services_avaliacao_manager.Controllers
 {
+   
     [Route("api/Filmes")]
     [ApiController]
     public class FilmesController : ControllerBase
@@ -16,7 +18,7 @@ namespace api_web_services_avaliacao_manager.Controllers
         {
             _tmdbService = tmdbService;
         }
-
+        [AllowAnonymous]
         [HttpGet("tmdb")]
         public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPopularesTMDB([FromQuery] string? termo)
         {
@@ -39,7 +41,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             return Ok(filmes);
         }
 
-
+        [AllowAnonymous]
         [HttpGet("tmdb/{id}")]
         public async Task<ActionResult<Filme>> GetFilmeById(int id)
         {
@@ -52,7 +54,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 
             return Ok(filme);
         }
-
+        [AllowAnonymous]
         [HttpGet("genero/{idGenero}")]
         public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesPorGenero(int idGenero)
         {
