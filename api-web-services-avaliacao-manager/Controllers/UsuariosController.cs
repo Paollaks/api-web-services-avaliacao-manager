@@ -40,6 +40,20 @@ namespace api_web_services_avaliacao_manager.Controllers
             }));
         }
 
+        [AllowAnonymous]
+        [HttpGet("public-by-email")]
+        public async Task<ActionResult> GetByEmail(string email)
+        {
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (usuario == null)
+                return NotFound();
+
+            return Ok(new { usuario.NomeDeUsuario });
+        }
+
         // GET: api/usuarios/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
