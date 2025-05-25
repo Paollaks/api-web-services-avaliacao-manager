@@ -40,6 +40,20 @@ namespace api_web_services_avaliacao_manager.Controllers
             }));
         }
 
+        [AllowAnonymous]
+        [HttpGet("public-by-email")]
+        public async Task<ActionResult> GetByEmail(string email)
+        {
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (usuario == null)
+                return NotFound();
+
+            return Ok(new { usuario.NomeDeUsuario });
+        }
+
         // GET: api/usuarios/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
@@ -183,6 +197,27 @@ namespace api_web_services_avaliacao_manager.Controllers
 
             });
         }
+        [Authorize]
+        [HttpPost("{id}/alterar-senha")]
+        public async Task<ActionResult> AlterarSenha(int id, [FromBody] AlterarSenhaDto dto)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
+                return Forbid();
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+                return NotFound();
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, usuario.Senha))
+                return BadRequest("Senha atual incorreta.");
+
+            usuario.Senha = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
 
     }

@@ -210,6 +210,57 @@ namespace api_web_services_avaliacao_manager.Services
         }
 
 
+        public async Task<List<Filme>> GetFilmesTopRatedAsync()
+        {
+            var filmes = new List<Filme>();
+
+            for (int page = 1; page <= 3; page++) // Busca 3 páginas (60 filmes)
+            {
+                var url = $"{BaseUrl}/movie/top_rated?api_key={_apiKey}&language=pt-BR&page={page}";
+
+                var response = await _httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                    continue;
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+                var results = doc.RootElement.GetProperty("results");
+
+                foreach (var item in results.EnumerateArray())
+                {
+                    var id = item.GetProperty("id").GetInt32();
+                    var titulo = item.GetProperty("title").GetString();
+                    var sinopse = item.GetProperty("overview").GetString();
+                    var releaseDate = item.GetProperty("release_date").GetString();
+                    var nota = item.GetProperty("vote_average").GetDouble();
+                    var posterPath = item.GetProperty("poster_path").GetString();
+                    var genreIds = item.GetProperty("genre_ids").EnumerateArray().Select(g => g.GetInt32()).ToList();
+
+                    var genero = genreIds.Count > 0 && GenerosTMDB.Generos.TryGetValue(genreIds[0], out var nomeGenero)
+                        ? nomeGenero
+                        : "Desconhecido";
+
+                    var ano = int.TryParse(releaseDate?.Split('-')[0], out var anoExtraido) ? anoExtraido : 0;
+
+                    var fotoUrl = !string.IsNullOrEmpty(posterPath)
+                        ? $"https://image.tmdb.org/t/p/w500{posterPath}"
+                        : null;
+
+                    filmes.Add(new Filme
+                    {
+                        Id = id,
+                        Titulo = titulo,
+                        AnoLancamento = ano,
+                        Genero = genero,
+                        Sinopse = sinopse,
+                        FotoUrl = fotoUrl,
+                        NotaMedia = nota
+                    });
+                }
+            }
+
+            return filmes;
+        }
 
         public class TMDBResponse
         {
