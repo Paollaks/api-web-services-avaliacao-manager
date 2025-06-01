@@ -11,15 +11,10 @@ namespace api_web_services_avaliacao_manager.Models
     public class UsuarioDTO : LinksHATEOS
     {
         public int Id { get; set; }
-
         public string NomeCompleto { get; set; }
-
         public string NomeDeUsuario { get; set; }
-
         public string Email { get; set; }
-
-        public ICollection<Favorito> Favoritos { get; set; } = new List<Favorito>();
         public ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
-
+        public ICollection<Favorito> Favoritos { get; set; } = new List<Favorito>();
     }
 }
