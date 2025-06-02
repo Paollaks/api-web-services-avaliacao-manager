@@ -52,6 +52,7 @@ namespace api_web_services_avaliacao_manager.Controllers
                 var filme = await _tmdbService.GetFilmeByIdAsync(comentario.TMDBFilmeId);
                 resposta.Add(new
                 {
+                    id = comentario.Id,
                     comentario.IdUsuario,
                     IdFilme = comentario.TMDBFilmeId,
                     Comentario = comentario.Texto,

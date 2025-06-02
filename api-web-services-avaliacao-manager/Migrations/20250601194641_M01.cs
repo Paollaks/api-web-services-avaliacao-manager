@@ -48,7 +48,7 @@ namespace api_web_services_avaliacao_manager.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("SqlServer:Identity", "2, 1"),
                     Texto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdUsuario = table.Column<int>(type: "int", nullable: false),
                     TMDBFilmeId = table.Column<int>(type: "int", nullable: false),
