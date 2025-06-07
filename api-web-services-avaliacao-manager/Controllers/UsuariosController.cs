@@ -130,7 +130,7 @@ namespace api_web_services_avaliacao_manager.Controllers
 
         // PUT: api/usuarios/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Usuario model)
+        public async Task<ActionResult> Update(int id, UsuarioUpdateDTO model)
         {
             if (id != model.Id) return BadRequest();
 
@@ -139,11 +139,9 @@ namespace api_web_services_avaliacao_manager.Controllers
             if (modelDb == null) return NotFound();
 
             modelDb.NomeCompleto = model.NomeCompleto;
-            modelDb.NomeDeUsuario = model.NomeDeUsuario;
-            modelDb.Senha = BCrypt.Net.BCrypt.HashPassword(model.Senha);
             modelDb.Email = model.Email;
 
-            _context.Usuarios.Update(model);
+            _context.Usuarios.Update(modelDb);
             await _context.SaveChangesAsync();
             return NoContent();
         }
