@@ -51,7 +51,7 @@ namespace api_web_services_avaliacao_manager.Controllers
             if (usuario == null)
                 return NotFound();
 
-            return Ok(new { usuario.NomeDeUsuario });
+            return Ok(new { usuario.NomeDeUsuario, usuario.Id });
         }
 
         // GET: api/usuarios/{id}
@@ -195,19 +195,30 @@ namespace api_web_services_avaliacao_manager.Controllers
 
             });
         }
-        [Authorize]
-        [HttpPost("{id}/alterar-senha")]
+        [AllowAnonymous]
+        [HttpPut("{id}/alterar-senha")]
         public async Task<ActionResult> AlterarSenha(int id, [FromBody] AlterarSenhaDto dto)
         {
-            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
-                return Forbid();
+            Usuario usuario = null;
 
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
-                return NotFound();
+            // Se o usuário está autenticado, verifica se o id bate com o do token
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
+                    return Forbid();
 
-            if (!BCrypt.Net.BCrypt.Verify(dto.SenhaAtual, usuario.Senha))
-                return BadRequest("Senha atual incorreta.");
+                usuario = await _context.Usuarios.FindAsync(id);
+            }
+            else
+            {
+                // Se não está autenticado, busca pelo e-mail
+                if (string.IsNullOrWhiteSpace(dto.Email))
+                    return BadRequest("E-mail é obrigatório para alteração de senha sem autenticação.");
+
+                usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email);
+                if (usuario == null || usuario.Id != id)
+                    return NotFound();
+            }
 
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(dto.NovaSenha);
             _context.Usuarios.Update(usuario);

@@ -2,7 +2,7 @@
 {
     public class AlterarSenhaDto
     {
-        public string SenhaAtual { get; set; }
+        public string Email { get; set; }
         public string NovaSenha { get; set; }
     }
 }
